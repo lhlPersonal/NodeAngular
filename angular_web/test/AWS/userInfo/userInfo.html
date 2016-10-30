@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <base href="/">
+    <link rel="stylesheet" href="/bower_components/bootstrap/dist/css/bootstrap.css">
+</head>
+<body ng-app="userInfoModule">
+<div ng-controller="userInfoController">
+    <div>
+        <h2>Welcome {{user}}</h2>
+    </div>
+    <div ng-view></div>
+</div>
+</body>
+</html>
+<script src="/bower_components/jquery/dist/jquery.js"></script>
+<script src="/bower_components/angular/angular.js"></script>
+<script src="/bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="/bower_components/angular-route/angular-route.js"></script>
+<script src="/test/aws/plusone.js"></script>
+<!--<script src="/test/AWS/stripe.js"></script>-->
+<!--<script src="/test/AWS/aws-sdk-2.1.9.min.js"></script>-->
+<script src="/test/aws/userInfo/config.js"></script>
+<script src="/test/aws/userInfo/controller.js"></script>
+<script src="/test/aws/userInfo/directive.js"></script>
+<script src="/test/aws/userInfo/service.js"></script>

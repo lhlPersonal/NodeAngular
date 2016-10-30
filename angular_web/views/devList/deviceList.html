@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html ng-app="dvDevListApp" bindonce>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <title>Device List</title>
+    <base href="/">
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles/devList.css">
+    <link rel="stylesheet" href="bower_components/angular-ui-grid/ui-grid.min.css">
+</head>
+<body>
+<!-- Split button -->
+
+<div class="container-fluid1" ng-controller="dvDevListController">
+    <div class="row-fluid">
+        <div class="pull-left left">
+            <div class="well sidebar-nav">
+                <div class="nav-header">Managed Devices</div>
+                <ul class="nav nav-list"  dv-data-init>
+                    <dv-grprepeat></dv-grprepeat>
+                </ul>
+            </div>
+        </div>
+        <div class="pull-right right">
+            <div ui-grid="gridOptions" ui-grid-pagination class="grid">
+        </div>
+        <div class="clearfix"></div>
+        <hr>
+        <footer>
+            <p class="modal-title">© Company 2012</p>
+        </footer>
+    </div>
+</div>
+</body>
+</html>
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
+<script src="bower_components/angular-ui-grid/ui-grid.js"></script>
+<script src="scripts/devList/config.js"></script>
+<script src="scripts/devList/service.js"></script>
+<script src="scripts/devList/directive.js"></script>
+<script src="scripts/devList/controller.js"></script>
+<script src="scripts/common/utils.js"></script>

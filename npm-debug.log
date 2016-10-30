@@ -1,0 +1,159 @@
+0 info it worked if it ends with ok
+1 verbose cli [ 'C:\\Program Files (x86)\\nodejs\\node.exe',
+1 verbose cli   'C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js',
+1 verbose cli   'install',
+1 verbose cli   'jquery',
+1 verbose cli   '--save' ]
+2 info using npm@3.10.3
+3 info using node@v6.7.0
+4 silly loadCurrentTree Starting
+5 silly install loadCurrentTree
+6 silly install readLocalPackageData
+7 silly fetchPackageMetaData jquery
+8 silly fetchNamedPackageData jquery
+9 silly mapToRegistry name jquery
+10 silly mapToRegistry using default registry
+11 silly mapToRegistry registry https://registry.npmjs.org/
+12 silly mapToRegistry data Result {
+12 silly mapToRegistry   raw: 'jquery',
+12 silly mapToRegistry   scope: null,
+12 silly mapToRegistry   escapedName: 'jquery',
+12 silly mapToRegistry   name: 'jquery',
+12 silly mapToRegistry   rawSpec: '',
+12 silly mapToRegistry   spec: 'latest',
+12 silly mapToRegistry   type: 'tag' }
+13 silly mapToRegistry uri https://registry.npmjs.org/jquery
+14 verbose request uri https://registry.npmjs.org/jquery
+15 verbose request no auth needed
+16 info attempt registry request try #1 at 21:12:40
+17 verbose request id 64f732d7269d8847
+18 http request GET https://registry.npmjs.org/jquery
+19 http 200 https://registry.npmjs.org/jquery
+20 verbose headers { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+20 verbose headers   etag: '"XP2WP1IST092BGKOCSI1DIEA"',
+20 verbose headers   'content-type': 'application/json',
+20 verbose headers   'content-encoding': 'gzip',
+20 verbose headers   'cache-control': 'max-age=300',
+20 verbose headers   'content-length': '12009',
+20 verbose headers   'accept-ranges': 'bytes',
+20 verbose headers   date: 'Sun, 30 Oct 2016 13:12:44 GMT',
+20 verbose headers   via: '1.1 varnish',
+20 verbose headers   age: '180',
+20 verbose headers   connection: 'keep-alive',
+20 verbose headers   'x-served-by': 'cache-itm7421-ITM',
+20 verbose headers   'x-cache': 'HIT',
+20 verbose headers   'x-cache-hits': '5',
+20 verbose headers   'x-timer': 'S1477833164.905149,VS0,VE0',
+20 verbose headers   vary: 'Accept-Encoding' }
+21 silly get cb [ 200,
+21 silly get   { server: 'CouchDB/1.5.0 (Erlang OTP/R16B03)',
+21 silly get     etag: '"XP2WP1IST092BGKOCSI1DIEA"',
+21 silly get     'content-type': 'application/json',
+21 silly get     'content-encoding': 'gzip',
+21 silly get     'cache-control': 'max-age=300',
+21 silly get     'content-length': '12009',
+21 silly get     'accept-ranges': 'bytes',
+21 silly get     date: 'Sun, 30 Oct 2016 13:12:44 GMT',
+21 silly get     via: '1.1 varnish',
+21 silly get     age: '180',
+21 silly get     connection: 'keep-alive',
+21 silly get     'x-served-by': 'cache-itm7421-ITM',
+21 silly get     'x-cache': 'HIT',
+21 silly get     'x-cache-hits': '5',
+21 silly get     'x-timer': 'S1477833164.905149,VS0,VE0',
+21 silly get     vary: 'Accept-Encoding' } ]
+22 verbose get saving jquery to C:\Users\weztt\AppData\Roaming\npm-cache\registry.npmjs.org\jquery\.cache.json
+23 verbose correctMkdir C:\Users\weztt\AppData\Roaming\npm-cache correctMkdir not in flight; initializing
+24 silly install normalizeTree
+25 silly loadCurrentTree Finishing
+26 silly loadIdealTree Starting
+27 silly install loadIdealTree
+28 silly cloneCurrentTree Starting
+29 silly install cloneCurrentTreeToIdealTree
+30 silly cloneCurrentTree Finishing
+31 silly loadShrinkwrap Starting
+32 silly install loadShrinkwrap
+33 silly loadShrinkwrap Finishing
+34 silly loadAllDepsIntoIdealTree Starting
+35 silly install loadAllDepsIntoIdealTree
+36 silly resolveWithNewModule jquery@3.1.1 checking installable status
+37 silly cache add args [ 'jquery', null ]
+38 verbose cache add spec jquery
+39 silly cache add parsed spec Result {
+39 silly cache add   raw: 'jquery',
+39 silly cache add   scope: null,
+39 silly cache add   escapedName: 'jquery',
+39 silly cache add   name: 'jquery',
+39 silly cache add   rawSpec: '',
+39 silly cache add   spec: 'latest',
+39 silly cache add   type: 'tag' }
+40 silly addNamed jquery@latest
+41 verbose addNamed "latest" is being treated as a dist-tag for jquery
+42 info addNameTag [ 'jquery', 'latest' ]
+43 silly mapToRegistry name jquery
+44 silly mapToRegistry using default registry
+45 silly mapToRegistry registry https://registry.npmjs.org/
+46 silly mapToRegistry data Result {
+46 silly mapToRegistry   raw: 'jquery',
+46 silly mapToRegistry   scope: null,
+46 silly mapToRegistry   escapedName: 'jquery',
+46 silly mapToRegistry   name: 'jquery',
+46 silly mapToRegistry   rawSpec: '',
+46 silly mapToRegistry   spec: 'latest',
+46 silly mapToRegistry   type: 'tag' }
+47 silly mapToRegistry uri https://registry.npmjs.org/jquery
+48 verbose addNameTag registry:https://registry.npmjs.org/jquery not in flight; fetching
+49 verbose get https://registry.npmjs.org/jquery not expired, no request
+50 silly addNameTag next cb for jquery with tag latest
+51 silly addNamed jquery@3.1.1
+52 verbose addNamed "3.1.1" is a plain semver version for jquery
+53 silly mapToRegistry name jquery
+54 silly mapToRegistry using default registry
+55 silly mapToRegistry registry https://registry.npmjs.org/
+56 silly mapToRegistry data Result {
+56 silly mapToRegistry   raw: 'jquery',
+56 silly mapToRegistry   scope: null,
+56 silly mapToRegistry   escapedName: 'jquery',
+56 silly mapToRegistry   name: 'jquery',
+56 silly mapToRegistry   rawSpec: '',
+56 silly mapToRegistry   spec: 'latest',
+56 silly mapToRegistry   type: 'tag' }
+57 silly mapToRegistry uri https://registry.npmjs.org/jquery
+58 verbose addRemoteTarball https://registry.npmjs.org/jquery/-/jquery-3.1.1.tgz not in flight; adding
+59 verbose addRemoteTarball [ 'https://registry.npmjs.org/jquery/-/jquery-3.1.1.tgz',
+59 verbose addRemoteTarball   '347c1c21c7e004115e0a4da32cece041fad3c8a3' ]
+60 info retry fetch attempt 1 at 21:12:49
+61 info attempt registry request try #1 at 21:12:49
+62 http fetch GET https://registry.npmjs.org/jquery/-/jquery-3.1.1.tgz
+63 http fetch 200 https://registry.npmjs.org/jquery/-/jquery-3.1.1.tgz
+64 info retry will retry, error on last attempt: Error: read ECONNRESET
+65 info retry will retry, error on last attempt: Error: read ECONNRESET
+66 silly fetchAndShaCheck shasum 347c1c21c7e004115e0a4da32cece041fad3c8a3
+67 silly rollbackFailedOptional Starting
+68 silly rollbackFailedOptional Finishing
+69 silly runTopLevelLifecycles Starting
+70 silly runTopLevelLifecycles Finishing
+71 silly install printInstalled
+72 verbose stack Error: shasum check failed for C:\Users\weztt\AppData\Local\Temp\npm-9840-218c651b\registry.npmjs.org\jquery\-\jquery-3.1.1.tgz
+72 verbose stack Expected: 347c1c21c7e004115e0a4da32cece041fad3c8a3
+72 verbose stack Actual:   ce7f8fadaf91a4c5d2853c207f3a1b7c420e3f78
+72 verbose stack From:     https://registry.npmjs.org/jquery/-/jquery-3.1.1.tgz
+72 verbose stack     at C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\sha\index.js:25:8
+72 verbose stack     at ReadStream.<anonymous> (C:\Program Files (x86)\nodejs\node_modules\npm\node_modules\sha\index.js:72:7)
+72 verbose stack     at emitNone (events.js:91:20)
+72 verbose stack     at ReadStream.emit (events.js:185:7)
+72 verbose stack     at endReadableNT (_stream_readable.js:974:12)
+72 verbose stack     at _combinedTickCallback (internal/process/next_tick.js:74:11)
+72 verbose stack     at process._tickCallback (internal/process/next_tick.js:98:9)
+73 verbose cwd F:\NodeAngular
+74 error Windows_NT 10.0.14393
+75 error argv "C:\\Program Files (x86)\\nodejs\\node.exe" "C:\\Program Files (x86)\\nodejs\\node_modules\\npm\\bin\\npm-cli.js" "install" "jquery" "--save"
+76 error node v6.7.0
+77 error npm  v3.10.3
+78 error shasum check failed for C:\Users\weztt\AppData\Local\Temp\npm-9840-218c651b\registry.npmjs.org\jquery\-\jquery-3.1.1.tgz
+78 error Expected: 347c1c21c7e004115e0a4da32cece041fad3c8a3
+78 error Actual:   ce7f8fadaf91a4c5d2853c207f3a1b7c420e3f78
+78 error From:     https://registry.npmjs.org/jquery/-/jquery-3.1.1.tgz
+79 error If you need help, you may report this error at:
+79 error     <https://github.com/npm/npm/issues>
+80 verbose exit [ 1, true ]

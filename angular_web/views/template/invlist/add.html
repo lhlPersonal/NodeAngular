@@ -1,0 +1,10 @@
+<form class="form-inline" role="form" name="myForm" ng-submit="save()">
+    <div class="form-group">
+        <label>device name:</label> <input type="text" class="form-control" name="devName" required
+                                           ng-model="device.name" placeholder="Enter device name"/>
+        <span ng-show="!myForm.devName.$valid">有错</span>
+        <span ng-show="myForm.devName.$error.required">必填</span>
+        <input type="submit" class="btn btn-success btn-lg btn-block" ng-disabled="myForm.$invalid">
+        </input>
+    </div>
+</form>

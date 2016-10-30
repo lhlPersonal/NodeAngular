@@ -1,0 +1,12 @@
+<li class="btn-group" dropdown ng-repeat="g in devGrps track by $index">
+    <span class="btn btn-info leftLabel" ng-click="showDevs(g.id)" tooltip="{{g.desc}}">{{g.name}}</span>
+    <span class="btn btn-success" dropdown-toggle dv-showbar>
+        <span class="caret"></span>
+    </span>
+    <ul class="dropdown-menu" role="menu">
+        <li><a class="btn" ng-click="showNew()">Add</a></li>
+        <li><a class="btn" ng-click="showEdit(g,$index)">Edit</a></li>
+        <li><a class="btn" ng-click="showDelAlert(g.id)">Delete</a></li>
+
+    </ul>
+</li>

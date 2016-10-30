@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <base href="/">
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="styles/login.css">
+</head>
+<body ng-app="dvLoginApp" ng-controller="dvLoginController" bindonce>
+<div class="container">
+    <form class="form-horizontal span7" role="form" name="sign_form" ng-submit="login()" novalidate>
+        <fieldset>
+            <legend>DView Login</legend>
+            <div class="inputDiv">
+                <input type="text" class="form-control" name="username" ng-model="userInfo.name"
+                       ng-pattern="/^[A-z0-9]+$/"
+                       placeholder="username" ng-maxlength="32" ng-minlength="10" required ng-focus="nameFocus()"
+                       ng-blur="nameBlur()" name-format>
+
+                <div ng-class="{'error':true,'hide':!nameBlurError}" ng-messages="sign_form.username.$error"
+                     ng-messages-multiple>
+                    <div ng-message="required">Name is required</div>
+                    <div ng-message="minlength">Name must be at least 10 characters</div>
+                    <div ng-message="maxlength">Name cannot be longer than 32 characters</div>
+                    <div ng-message="pattern">Name must be in range of a to Z.</div>
+
+                </div>
+            </div>
+            <div class="inputDiv">
+                <input type="password" class="form-control" name="pwd" ng-model="userInfo.pwd"
+                       placeholder="password" ng-maxlength="32" ng-minlength="10" required ng-focus="pwdFocus()"
+                       ng-blur="pwdBlur()">
+
+                <div ng-class="{'error':true,'hide':!pwdBlurError}" ng-messages="sign_form.pwd.$error"
+                     ng-messages-multiple
+                        >
+                    <div ng-message="required">Password is required</div>
+                    <div ng-message="minlength">Password must be at least 10 characters</div>
+                    <div ng-message="maxlength">Password cannot be longer than 32 characters</div>
+                </div>
+                <validate-style></validate-style>
+                <div class="error" ng-if="show()">
+                    Name or password is error.
+                </div>
+            </div>
+            <div class="inputDiv">
+                <div class="col-sm-offset-2 col-sm-10">
+                    <button type="submit" class="btn btn-primary">login</button>
+                </div>
+            </div>
+            <!--Name: {{userInfo.name}}-->
+        </fieldset>
+    </form>
+</div>
+</body>
+</html>
+
+
+<script src="bower_components/jquery/dist/jquery.js"></script>
+<script src="bower_components/angular/angular.js"></script>
+<script src="bower_components/angular-messages/angular-messages.js"></script>
+<script src="bower_components/bootstrap/dist/js/bootstrap.js"></script>
+<script src="bower_components/angular-bindonce/bindonce.js"></script>
+<script src="bower_components/angular-translate/angular-translate.js"></script>
+<script src="scripts/login/config.js"></script>
+<script src="scripts/login/directive.js"></script>
+<script src="scripts/login/service.js"></script>
+<script src="scripts/login/controller.js"></script>
+
+<script>
+    console.log("script finish");
+
+    a:{
+        for (var i = 0; i < 5; i++) {
+            for (var j = 0; j < 5; j++) {
+                if (i * j == 15) {
+                    break a;
+                }
+            }
+        }
+    }
+    console.log("aaaa");
+</script>

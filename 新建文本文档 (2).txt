@@ -1,0 +1,23 @@
+1.bindJQuery();
+2.publishExternalAPI(angular);
+  1)  扩展angular的基本属性，比如angular.lowerCase，angular.forEach等等。
+  2）调用setupModuleLoader方法初始化angularModule变量，该方法返回了angular.module=function(name,requires,configFn)的函数，而
+该函数返回了moduleInstance接口，该接口包含config、directive、controller、service、constant、value等属性，调用angular.module(name,requires,configFn).config(..).controller(..)
+方法时，每传入一个name（会确保该name为module对象的属性），都会调用ensure方法，返回该name对应的moduleInstance对象（即var app=angular.module(...),app所指的对象），以保证链式调用。用app.XXX时，传入的参数会暂时存放在moduleInstance的_invodeQueue数组里，
+但.config(...)存放在configBlocks数组里，数组中包含['$injector', 'invoke',configFn]。
+  3)调用angularModule('ngLocale',[])和angularModule('ng',['ngLocale'],['$provide',function ngModule($provide){....}])将ngLocale和ng初始化为moduleInstance的属性。
+
+
+3.jqLite(document).ready(function() {angularInit(document, bootstrap);});
+  1)确保dom已经加载完毕后调用angularInit方法。
+  2)找到document中的ng-app属性所在的元素element，并且得到属性的值module，还有是否有ng-strict-di属性，如有，则作为config{}对象的属性config{strict-di:true},将这三个参数传入bootstrap函数中。
+  3）调用var injector = createInjector(modules, config.strictDi)先后执行config和run中的方法。createInjector方法会初始化providerCache、instanceCache和providerCache.$injector、instanceCache.$injector等对象，providerCache中包含所有的provider(至少有$get方法)、$injector(有invoke,has,annotate,get,instantiate等方法)、$provide(有factory,service,constant,value,decorator，provider等方法)对象。
+  4）调用 injector.invoke(['$rootScope', '$rootElement', '$compile', '$injector',//根据字符串注入依赖对象，调用bootstrapApply方法。
+                    function bootstrapApply(scope, element, compile, injector) {
+                        scope.$apply(function () {
+                            element.data('$injector', injector);
+                            compile(element)(scope);//compile函数执行完成，传入scope后会注入依赖对象并实例化controller，最后执行指令中的postLink函数。
+                        });
+                    }]
+            );
+完成整个初始化工作。
