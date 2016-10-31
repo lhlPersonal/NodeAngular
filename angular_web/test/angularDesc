@@ -1,0 +1,6 @@
+1.angularInit(window.document, bootstrap);
+        1.获取ngApp所在元素（appElement）及ngApp的名字（module），并且获取strict-di属性是否存在，意指是否严格注入，如为true，表示不能使用function($xxx)默认注入的方式。
+          该属性会放入config对象中。 config.strictDi = getNgAttribute(appElement, "strict-di") !== null;不为空即表示true。
+        2.调用bootstrap(appElement, module ? [module] : [], config)方法，该方法返回injector对象。
+              1.更新modules数组，[ng,['$provide', function($provide) {$provide.value('$rootElement', element);}],ngApp]
+               传入createInjector中。 var injector = createInjector(modules, config.strictDi);
