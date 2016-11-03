@@ -4623,19 +4623,19 @@
                         //new fn.bind(args)();
                     }
                 }
-                ,	//Type为数组或者单个函数，数组时最后一个为function，前面的为需要注入的参数
+                ,	//Type为数组或者单个函数，数组时最后一个为function，前面的为需要注入的参数，该方法意为实例化一个function
                 instantiate: function (Type, locals, serviceName) {
                     // Check if Type is annotated and use just the given function at n-1 as parameter
                     // e.g. someModule.factory('greeter', ['$window', function(renamed$window) {}]);
                     var ctor = (isArray(Type) ? Type[Type.length - 1] : Type);
                     var args = injectionArgs(Type, locals, serviceName);
                     // Empty object at position 0 is ignored for invocation with `new`, but required.
-                    args.unshift(null);
+                    args.unshift(null);//args在bind中，传入ctor时，只会传入slice(1)所在的参数。
                     return new (Function.prototype.bind.apply(ctor, args))();
-                    //return new ctor.bind(args)();  //实例化
+                    //return new ctor(args)();  //实例化
                 }
                 ,
-                get: function getService(serviceName, caller) {
+                get: function(serviceName, caller) {
                     if (providerCache.hasOwnProperty(serviceName)) {   //存在则返回chache中的对象
                         if (providerCache[serviceName] === INSTANTIATING) {
                             throw $injectorMinErr('cdep', 'Circular dependency found: {0}',
@@ -4651,7 +4651,7 @@
                     }
                 }
                 ,
-                annotate: createInjector.$$annotate,// $inject = createInjector.$$annotate(fn, strictDi, serviceName);
+                annotate: createInjector.$$annotate,// $inject = createInjector.$$annotate(fn, strictDi, serviceName); //获取inject参数
                 has: function (name) { //返回provideCache或者传入的cache里的属性值
                     return providerCache.hasOwnProperty(name + 'Provider') || providerCache.hasOwnProperty(name);
                 }
@@ -4705,7 +4705,7 @@
                                 serviceName + ' <- ' + path.join(' <- '));
                         }
                         return instanceCache[serviceName];
-                    } else {					  
+                    } else {					  //不存在，则从providerCache中取出 请求的serviceName的Provider对象，然后调用instanceInjector.invoke(fn)，得到$get方法对应的函数的返回值。放入instanceCache中，此所谓单例模式。
                              var provider = providerInjector.get(serviceName + 'Provider', caller);
 					instanceCache[serviceName]=	instanceInjector.invoke(provider.$get, provider, undefined, serviceName);
 						return instanceCache[serviceName];
@@ -4724,7 +4724,14 @@
             }
         };
         var runBlocks = loadModules(modulesToLoad);
-        instanceInjector = protoInstanceInjector.get('$injector');
+      //  instanceInjector = protoInstanceInjector.get('$injector');   
+	  instanceInjector.invoke(function () {
+                return protoInstanceInjector;
+            }, {
+            $get: function () {
+                return protoInstanceInjector;
+            }
+        }, undefined, '$injector');
         instanceInjector.strictDi = strictDi;
         forEach(runBlocks, function (fn) {
             if (fn) instanceInjector.invoke(fn);
