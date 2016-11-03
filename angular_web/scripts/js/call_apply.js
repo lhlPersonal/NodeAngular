@@ -3,7 +3,7 @@
  */
 'use strict';
 var x = 1;
-var t = (function () { //call调用函数时，如果传入的是实例，则函数里的this作用在该实例上，如果传入的不是实例，则this作用在传入的参数上，相当于参数本身。一句话，call相当于用call的参数去执行函数里面的代码。遇到this就适用前述规则。
+var t = (function () { //call调用函数时，如果传入的是实例，则函数里的this作用在该实例上，如果传入的不是实例，则this为call或者apply的第一个参数。一句话，call相当于用call的参数去执行函数里面的代码。遇到this就适用前述规则。
     var z = Math.pow(2, this);
     console.log(z);
     return this;
@@ -12,6 +12,37 @@ var t = (function () { //call调用函数时，如果传入的是实例，则函
 }());
 console.log(JSON.stringify(t));
 
+//bind的不同应用
+
+//bind push
+var ff=[1,2,3];var zz=[].push.bind(ff,5,6,7);
+       result:
+            zz=function push(){[native code]};
+		    zz()=6;//长度
+		    ff=[1,2,3,5,6,7]
+
+		//bind apply
+var zz=Function.prototype.apply.bind(function(){return this;},function(){return 10;});   
+        result:
+		    zz=function apply(){[native code]}; 
+            zz()=function(){return 10;}
+			zz()()=10;
+			
+			//bind apply
+var zz=Function.prototype.apply.bind(function(){return this.a;},{ a:10});
+        result:
+            zz=function apply(){[native code]}; 
+            zz()=10;
+			
+			//apply bind apply中的参数会从{b:2}开始传入para形参中。{a:10}会被截取。
+var zz=Function.prototype.bind.apply(function(para){return para.a;},{ a:10},{b:2});
+
+   zz=function(para){return para.a;}; 
+   zz()=undefined
+   
+			
+			
+			
 
 var newArr = (function a(n, arr = []) {
     if (n > 0) {
