@@ -3967,7 +3967,7 @@
         return 'fn';
     }
 
-    function annotate(fn, strictDi, name) {
+    function annotate(fn, strictDi, name) {//获取inject参数数组名称。如$log,$inject,$xxxxx。
         var $inject,
             argDecl,
             last;
@@ -3976,7 +3976,7 @@
             if (!($inject = fn.$inject)) {
                 $inject = [];
                 if (fn.length) {
-                    if (strictDi) {
+                    if (strictDi) {  //严格模式下不允许直接在function中注入。必须写成数组的形式。如['$xxxx',function($xxxx){}]，而不能function($xxxx){}
                         if (!isString(name) || !name) {
                             name = fn.name || anonFn(fn);
                         }
@@ -4724,20 +4724,13 @@
             }
         };
         var runBlocks = loadModules(modulesToLoad);
-      //  instanceInjector = protoInstanceInjector.get('$injector');   
-	  instanceInjector.invoke(function () {
-                return protoInstanceInjector;
-            }, {
-            $get: function () {
-                return protoInstanceInjector;
-            }
-        }, undefined, '$injector');
+      //  instanceInjector = protoInstanceInjector.get('$injector');    //纯属多余。
         instanceInjector.strictDi = strictDi;
-        forEach(runBlocks, function (fn) {
+        forEach(runBlocks, function (fn) {//运行run数组里的方法。
             if (fn) instanceInjector.invoke(fn);
         });
 
-        return instanceInjector;
+        return instanceInjector; //返回inject对象，包括has,instantiate,annotate,provide,get等方法。
 
         ////////////////////////////////////
         // $provider
@@ -4756,7 +4749,7 @@
         function provider(name, provider_) {
             assertNotHasOwnProperty(name, 'service');
             if (isFunction(provider_) || isArray(provider_)) {
-                provider_ = providerInjector.instantiate(provider_);
+                provider_ = providerInjector.instantiate(provider_);//如果不是对象，则需要先实例化该函数，该函数必须有$get属性。如function(){this.$get=function(){}}
             }
             if (!provider_.$get) {
                 throw $injectorMinErr('pget', "Provider '{0}' must define $get factory method.", name);
@@ -4773,29 +4766,30 @@
                 return result;
             };
         }
-
+//factory函数提供函数构造器，实例化时，返回providerCache中的name+'Provider'属性所在的对象的$get属性对应的函数。
         function factory(name, factoryFn, enforce) {
             return provider(name, {
                 $get: enforce !== false ? enforceReturnValue(name, factoryFn) : factoryFn
             });
         }
 
+		//service函数提供构造函数，实例化时，由providerCache['$injectorProvider']的instantiate方法实例化providerCache[name+'Provider']对象的$get属性对应的构造函数。
         function service(name, constructor) {
-            return factory(name, ['$injector', function ($injector) {
+            return factory(name, ['$injector', function ($injector) {  //$injector为providerCache['$injectorProvider']所在的对象，包括provider,factory,service,value,constant,decorator等方法。
                 return $injector.instantiate(constructor);
             }]);
         }
-
+//返回providerCache[name+'Provider']对象的$get属性所在函数的值。
         function value(name, val) {
             return factory(name, valueFn(val), false);
         }
-
+//直接存到providerCache和instanceCache中。
         function constant(name, value) {
             assertNotHasOwnProperty(name, 'constant');
             providerCache[name] = value;
             instanceCache[name] = value;
         }
-
+//装饰者模式，用于在providerCache[serviceName+'Provider']对象上添加功能。
         function decorator(serviceName, decorFn) {
             var origProvider = providerInjector.get(serviceName + providerSuffix),
                 orig$get = origProvider.$get;
@@ -4866,7 +4860,7 @@
 
             function injectionArgs(fn, locals, serviceName) {
                 var args = [],
-                    $inject = createInjector.$$annotate(fn, strictDi, serviceName);
+                    $inject = createInjector.$$annotate(fn, strictDi, serviceName);  //获取需要注入的provider前缀名，如$log,$delegate等
 
                 for (var i = 0, length = $inject.length; i < length; i++) {
                     var key = $inject[i];
@@ -4874,8 +4868,8 @@
                         throw $injectorMinErr('itkn',
                             'Incorrect injection token! Expected service name as string, got {0}', key);
                     }
-                    args.push(locals && locals.hasOwnProperty(key) ? locals[key] :
-                        getService(key, serviceName));
+                    args.push(locals && locals.hasOwnProperty(key) ? locals[key] ://locals表示locals对象中已经存在要注入的对象，则直接使用
+                        getService(key, serviceName));//否则从service中取出provider所在的函数
                 }
                 return args;
             }
@@ -4910,12 +4904,12 @@
                         // #5388
                         return fn.apply(self, args); //调用函数
                     } else {
-                        args.unshift(null);
+                        args.unshift(null);//在数组头部插入null值，bind.apply时会返回fn，并传入args数组第一个之后的参数，即第一个参数不会传递。
                         return new (Function.prototype.bind.apply(fn, args))(); //实例化函数
-                        //new fn.bind(args)();
+                        //return new fn(args)();
                     }
                 }
-                ,	//Type为数组或者单个函数，数组时最后一个为function，前面的为需要注入的参数
+                ,	//Type为数组或者单个函数，数组时最后一个为function，前面的为需要注入的参数。该方法会返回一个对象。
                 instantiate: function (Type, locals, serviceName) {
                     // Check if Type is annotated and use just the given function at n-1 as parameter
                     // e.g. someModule.factory('greeter', ['$window', function(renamed$window) {}]);
@@ -4924,10 +4918,10 @@
                     // Empty object at position 0 is ignored for invocation with `new`, but required.
                     args.unshift(null);
                     return new (Function.prototype.bind.apply(ctor, args))();
-                    //return new ctor.bind(args)();  //实例化
+                    //return new ctor(args)();  //实例化
                 }
                 ,
-                get: function getService(serviceName, caller) {
+                get: function getService(serviceName, caller) { //如果instanceCache中存在，则返回该service，如果不存在，则从providerCache中实例化一个，存入instanceCache中。
                     if (cache.hasOwnProperty(serviceName)) {   //存在则返回chache中的对象
                         if (cache[serviceName] === INSTANTIATING) {
                             throw $injectorMinErr('cdep', 'Circular dependency found: {0}',
@@ -4956,7 +4950,7 @@
                     }
                 }
                 ,
-                annotate: createInjector.$$annotate,// $inject = createInjector.$$annotate(fn, strictDi, serviceName);
+                annotate: createInjector.$$annotate,// $inject = createInjector.$$annotate(fn, strictDi, serviceName);   //获取需要注入的参数名称。
                 has: function (name) { //返回provideCache或者传入的cache里的属性值
                     return providerCache.hasOwnProperty(name + 'Provider') || cache.hasOwnProperty(name);
                 }
