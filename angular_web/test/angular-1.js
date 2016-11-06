@@ -1779,11 +1779,11 @@
 
             modules.unshift('ng');
             var injector = createInjector(modules, config.strictDi);
-            injector.invoke(['$rootScope', '$rootElement', '$compile', '$injector',
+        injector.invoke(['$rootScope', '$rootElement', '$compile', '$injector',//调用scope.$apply，执行元素编译，传入作用域，完成整个页面的数据绑定。
                 function bootstrapApply(scope, element, compile, injector) {
-                    scope.$apply(function () {
-                        element.data('$injector', injector);
-                        compile(element)(scope);
+                    scope.$apply(function () {//$apply方法调用完成之后，会调用$degist方法。
+                        element.data('$injector', injector);  //缓存injector:invoke,instantiate,get,has,annotate对象。
+                        compile(element)(scope); //编译ng-app所在的元素，然后传入$rootScope,完成整个页面的数据绑定。
                     });
                 }]
             );
@@ -2036,7 +2036,7 @@
         // We need to expose `angular.$$minErr` to modules such as `ngResource` that reference it during bootstrap
         angular.$$minErr = angular.$$minErr || minErr;
 
-        return ensure(angular, 'module', function () {
+        return ensure(angular, 'module', function () { //angular.module=function modules(name, requires, configFn);
             /** @type {Object.<string, angular.Module>} */
             var modules = {};
 
@@ -2091,7 +2091,7 @@
              *        {@link angular.Module#config Module#config()}.
              * @returns {angular.Module} new module with the {@link angular.Module} api.
              */
-            return function module(name, requires, configFn) {
+            return function module(name, requires, configFn) {//'ng', ['ngLocale'], ['$provide',function ngModule($provide) {}]
                 var assertNotHasOwnProperty = function (name, context) {
                     if (name === 'hasOwnProperty') {
                         throw ngMinErr('badname', 'hasOwnProperty is not a valid {0} name', context);
@@ -2102,7 +2102,7 @@
                 if (requires && modules.hasOwnProperty(name)) {
                     modules[name] = null;
                 }
-                return ensure(modules, name, function () {
+                return ensure(modules, name, function () {//{'ng':}
                     if (!requires) {
                         throw $injectorMinErr('nomod', "Module '{0}' is not available! You either misspelled " +
                             "the module name or forgot to load it. If registering a module ensure that you " +
@@ -2118,8 +2118,12 @@
                     /** @type {!Array.<Function>} */
                     var runBlocks = [];
 
-                    var config = invokeLater('$injector', 'invoke', 'push', configBlocks);
-
+                    //var config = invokeLater('$injector', 'invoke', 'push', configBlocks);
+					var config=function () {
+                            configBlocks['push'](['$injector', 'invoke', arguments]); //放入invok
+                            return moduleInstance;
+                        };
+					
                     /** @type {angular.Module} */
                     var moduleInstance = {
                         // Private state
@@ -2170,8 +2174,12 @@
                          * @description
                          * See {@link auto.$provide#factory $provide.factory()}.
                          */
-                        factory: invokeLaterAndSetModuleName('$provide', 'factory'),
-
+                   //     factory: invokeLaterAndSetModuleName('$provide', 'factory'),
+				        factoy:function (recipeName, factoryFunction) {
+                            if (factoryFunction && isFunction(factoryFunction)) factoryFunction.$$moduleName = name;
+                            invokeQueue.push(['$provide', 'factory', arguments]);
+                            return moduleInstance;
+                        },
                         /**
                          * @ngdoc method
                          * @name angular.Module#service
@@ -2181,8 +2189,11 @@
                          * @description
                          * See {@link auto.$provide#service $provide.service()}.
                          */
-                        service: invokeLaterAndSetModuleName('$provide', 'service'),
-
+                        service: function (recipeName, factoryFunction) {
+                            if (factoryFunction && isFunction(factoryFunction)) factoryFunction.$$moduleName = name;
+                            invokeQueue.push(['$provide', 'service', arguments]);
+                            return moduleInstance;
+                        },
                         /**
                          * @ngdoc method
                          * @name angular.Module#value
@@ -2192,8 +2203,11 @@
                          * @description
                          * See {@link auto.$provide#value $provide.value()}.
                          */
-                        value: invokeLater('$provide', 'value'),
-
+                      //  value: invokeLater('$provide', 'value'),
+					  value:function () {
+                            invokeQueue['push'](['$provide', 'value', arguments]); //放入invok
+                            return moduleInstance;
+                        },
                         /**
                          * @ngdoc method
                          * @name angular.Module#constant
@@ -2204,8 +2218,12 @@
                          * Because the constants are fixed, they get applied before other provide methods.
                          * See {@link auto.$provide#constant $provide.constant()}.
                          */
-                        constant: invokeLater('$provide', 'constant', 'unshift'),
-
+                     //   constant: invokeLater('$provide', 'constant', 'unshift'),
+						constant:function () {
+                            invokeQueue['unshift'](['$provide', 'constant', arguments]); //放入invok
+                            return moduleInstance;
+                        },
+						
                         /**
                          * @ngdoc method
                          * @name angular.Module#decorator
@@ -2293,7 +2311,7 @@
                          * @description
                          * See {@link ng.$compileProvider#directive $compileProvider.directive()}.
                          */
-                        directive: invokeLaterAndSetModuleName('$compileProvider', 'directive'),
+                        directive: invokeLaterAndSetModuleName('$compileProvider', 'directive'),//$$compileProvider实例的directive方法
 
                         /**
                          * @ngdoc method
@@ -2319,7 +2337,10 @@
                          * For more about how to configure services, see
                          * {@link providers#provider-recipe Provider Recipe}.
                          */
-                        config: config,
+                        config: function () {
+                            configBlocks['push'](['$injector', 'invoke', arguments]); //放入invok
+                            return moduleInstance;
+                        },
 
                         /**
                          * @ngdoc method
@@ -2331,7 +2352,7 @@
                          * Use this method to register work which should be performed when the injector is done
                          * loading all modules.
                          */
-                        run: function (block) {
+                        run: function (block) {  //直接加入到runBlocks数组中。
                             runBlocks.push(block);
                             return this;
                         }
@@ -2352,7 +2373,7 @@
                     function invokeLater(provider, method, insertMethod, queue) {
                         if (!queue) queue = invokeQueue;
                         return function () {
-                            queue[insertMethod || 'push']([provider, method, arguments]);
+                            queue[insertMethod || 'push']([provider, method, arguments]); //放入invok
                             return moduleInstance;
                         };
                     }
@@ -2588,13 +2609,15 @@
 
         angularModule = setupModuleLoader(window);
 
-        angularModule('ng', ['ngLocale'], ['$provide',
+        angularModule('ng', ['ngLocale'], ['$provide',  //(name, requires, configFn),这里的第三个数组参数会放入invokeQueue数组的最前面，以保证调用的时候能够最早初始化。     $injector.invoke([$provide,function($provide){}])
             function ngModule($provide) {
                 // $$sanitizeUriProvider needs to be before $compileProvider as it is used by it.
-                $provide.provider({
+                $provide.provider({  //对象传入，会依次访问对象的属性，调用 provider: function (key, provider_) {}方法。key为属性，provider_为value值。
                     $$sanitizeUri: $$SanitizeUriProvider
                 });
-                $provide.provider('$compile', $CompileProvider).directive({
+                //$CompileProvider为函数，传入provider中会先调用$injector的instantiate实例化该函数，得到的对象包括{$get:function(){},directive:function(){}}等。
+                $provide.provider('$compile', $CompileProvider).directive({ //实例化$CompileProvider，并将$get方法放入providerCache中，
+                    // 调用compile实例的directive方法，调用$provide的factory方法，factory中的$get方法为将directive指令放入directive数组中。
                     a: htmlAnchorDirective,
                     input: inputDirective,
                     textarea: inputDirective,
@@ -4534,10 +4557,10 @@
             // },
 
             providerCache = {
-                $provide: {
+                $provide: {//除了constant方法是直接作为provideCache的属性加入，其它都会类似provideCache[key+'Provider']={$get:fn}的
                     provider: function (key, provider_) {
                         if (isFunction(provider_) || isArray(provider_)) {
-                            provider_ = providerInjector.instantiate(provider_);
+                            provider_ = providerInjector.instantiate(provider_);//实例化函数，实例化后的函数应该包括$get属性。function(){this.$get=function(){}}}
                         }
                         if (!provider_.$get) {
                             throw $injectorMinErr('pget', "Provider '{0}' must define $get factory method.", name);
@@ -4723,10 +4746,10 @@
                 return protoInstanceInjector;
             }
         };
-        var runBlocks = loadModules(modulesToLoad);
+        var runBlocks = loadModules(modulesToLoad); //1.调用invokeQueue里的方法。2.调用onfigBlocks里的方法。添加相应的provider到ProvideCache，添加相应的function实例到instanceCache，即调用angular内置的模块和angular.module及其定义的controller，service，factory，directive，filter，component等函数。3.调用返回的runBlocks数组。
       //  instanceInjector = protoInstanceInjector.get('$injector');    //纯属多余。
         instanceInjector.strictDi = strictDi;
-        forEach(runBlocks, function (fn) {//运行run数组里的方法。
+        forEach(runBlocks, function (fn) {//最后调用runBlocks里的方法。
             if (fn) instanceInjector.invoke(fn);
         });
 
@@ -4739,9 +4762,9 @@
         function supportObject(delegate) {
             return function (key, value) {
                 if (isObject(key)) {
-                    forEach(key, reverseParams(delegate));
+                    forEach(key, function(value,key){return delegate(key,value);});  //传入对象key，对key的所有属性调用delegate方法。
                 } else {
-                    return delegate(key, value);
+                    return delegate(key, value);，
                 }
             };
         }
@@ -4810,13 +4833,13 @@
                 if (loadedModules.get(module)) return;
                 loadedModules.put(module, true);
 
-                function runInvokeQueue(queue) {
+                function runInvokeQueue(queue) {//调用invokeQueue和configBlocks里面的方法。
                     var i, ii;
                     for (i = 0, ii = queue.length; i < ii; i++) {
                         var invokeArgs = queue[i],
-                            provider = providerInjector.get(invokeArgs[0]);
-
-                        provider[invokeArgs[1]].apply(provider, invokeArgs[2]);
+                          //  provider = providerInjector.get(invokeArgs[0]);  //invokeArgs[0]：provider前缀名。ProvideCache[invokeArgs[0]+'Provider']。
+ provider =ProvideCache[invokeArgs[0]+'Provider'];
+                        provider[invokeArgs[1]].apply(provider, invokeArgs[2]); //调用具体Provider的方法invokeArgs[1]，invokeArgs[2]为方法的参数。
                     }
                 }
 
@@ -5390,7 +5413,7 @@
 
     /**
      * @ngdoc provider
-     * @name $animateProvider
+     * @name $animateProviderloadModules
      *
      * @description
      * Default implementation of $animate that doesn't perform any animations, instead just
@@ -7994,11 +8017,11 @@
                             var directives = [];
                             forEach(hasDirectives[name], function (directiveFactory, index) {
                                 try {
-                                    var directive = $injector.invoke(directiveFactory);
+                                    var directive = $injector.invoke(directiveFactory); //调用directive的方法
                                     if (isFunction(directive)) {
-                                        directive = {compile: valueFn(directive)};
+                                        directive = {compile: valueFn(directive)} //{compile:function(){return directive;}}
                                     } else if (!directive.compile && directive.link) {
-                                        directive.compile = valueFn(directive.link);
+                                        directive.compile = valueFn(directive.link);///funtion(){return directive.link;}
                                     }
                                     directive.priority = directive.priority || 0;
                                     directive.index = index;
@@ -8016,7 +8039,9 @@
                 }
                 hasDirectives[name].push(directiveFactory);
             } else {
-                forEach(name, reverseParams(registerDirective));
+                forEach(name, function (value, key) {
+            registerDirective(key, value);
+        });
             }
             return this;
         };

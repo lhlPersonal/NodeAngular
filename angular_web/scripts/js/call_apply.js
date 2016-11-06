@@ -3,46 +3,70 @@
  */
 'use strict';
 var x = 1;
-var t = (function () { //call调用函数时，如果传入的是实例，则函数里的this作用在该实例上，如果传入的不是实例，则this为call或者apply的第一个参数。一句话，call相当于用call的参数去执行函数里面的代码。遇到this就适用前述规则。
-    var z = Math.pow(2, this);
-    console.log(z);
-    return this;
-}).call(function a() {
-    return 10;
-}());
-console.log(JSON.stringify(t));
 
-//bind的不同应用
+/**
+ *
+ *函数调用call/apply
+ *
+ *1. 如果call/apply的第一个参数可以被this所调用，如this.xxx，则该参数的this会应用到调用函数的this里（如果调用函数里面有this引用）。
+ *  eg：   (function(){return this.z;}).apply({z:3});
+ *  result:3;
+ *
+ *2. 反之，该参数整体会作为调用函数的this。
+ *   eg:     (function(){return this;}).apply(function(){this.a=1;return {z:3}});
+ *   result: function(){this.a=1;return {z:3}};
+ *
+ *   eg:     var t = (function () {
+ *           var z = Math.pow(2, this);
+ *           console.log(z);  //1024
+ *           return this;     //this为call里函数的返回结果10。
+ *           }).call(function a() {
+ *           return 10;}());
+ *
+ * *   result: 1024
+ *
+ *
+ *3. 如果调用函数里面没有this，则call/apply不会被执行，相当于直接执行调用函数。
+ *  eg:    (function(){return {f:5};}).apply(function(){this.a=1;return {z:3}});
+ *  result:{f: 5};
+ *
+ */
 
-//bind push
-var ff=[1,2,3];var zz=[].push.bind(ff,5,6,7);
-       result:
-            zz=function push(){[native code]};
-		    zz()=6;//长度
-		    ff=[1,2,3,5,6,7]
 
-		//bind apply
-var zz=Function.prototype.apply.bind(function(){return this;},function(){return 10;});   
-        result:
-		    zz=function apply(){[native code]}; 
-            zz()=function(){return 10;}
-			zz()()=10;
-			
-			//bind apply
-var zz=Function.prototype.apply.bind(function(){return this.a;},{ a:10});
-        result:
-            zz=function apply(){[native code]}; 
-            zz()=10;
-			
-			//apply bind apply中的参数会从{b:2}开始传入para形参中。{a:10}会被截取。
-var zz=Function.prototype.bind.apply(function(para){return para.a;},{ a:10},{b:2});
-
-   zz=function(para){return para.a;}; 
-   zz()=undefined
-   
-			
-			
-			
+/**
+ *
+ * bind的不同应用
+ *
+ * 1. bind普通方法。
+ *    eg:    var ff=[1,2,3];var zz=[].push.bind(ff,5,6,7);
+ *    result:zz=function push(){[native code]};
+ *            zz()=6;//调用push:5,6,7之后数组的长度。
+ *            ff=[1,2,3,5,6,7]  //改变后的数组。
+ *
+ * 2. bind.apply。
+ *
+ *    bind.apply中的参数会从{b:2}开始传入para形参中。{a:10}会被截取。
+ *    eg:    var zz=Function.prototype.bind.apply(function(para){return para.a;},{ a:10},{b:2});
+ *    result:zz=function(para){return para.a;};//相当于zz=function({b:2}){return para.a;};
+ *           zz()=undefined
+ *
+ *    eg:    var f=Function.prototype.bind.apply(function(){return {a:1}})
+ *    result:
+ *           f=function(){return {a:1}};
+ *           f()=new f()={a: 1};   //函数返回对象的时候，new和直接调用产生的结果一样
+ *
+ * 3. apply.bind。
+ *    eg:    var zz=Function.prototype.apply.bind(function(){return this;},function(){return 10;});
+ *    result:zz=function apply(){[native code]};//相当于function zz(){ (function(){return this;}).apply(function(){return 10;});}
+ *           zz()=function(){return 10;}
+ *           zz()()=10;
+ *
+ *    eg:    var zz=Function.prototype.apply.bind(function(){return this.a;},{ a:10});
+ *    result:zz=function apply(){[native code]};//相当于function(){(function(){return this.a;}).apply({a:10});};
+ *             zz()=10;
+ *
+ *
+ */
 
 var newArr = (function a(n, arr = []) {
     if (n > 0) {
@@ -56,10 +80,6 @@ var newArr = (function a(n, arr = []) {
 
 console.log(newArr);
 
-
-(function getName() {
-    alert();
-}());
 
 /**
  *
