@@ -17583,7 +17583,7 @@ function $RootScopeProvider() {
 
       /**
        * @ngdoc event
-       * @name $rootScope.Scope#$destroy
+       * @name $rootScope.Scope#$digest:stroy
        * @eventType broadcast on scope being destroyed
        *
        * @description
@@ -18084,7 +18084,7 @@ function $RootScopeProvider() {
 
     function scheduleApplyAsync() {
       if (applyAsyncId === null) {
-        applyAsyncId = $browser.defer(function() {
+        applyAsyncId = $browser.defer(function() {//setTimeout(..,0)
           $rootScope.$apply(flushApplyAsync);
         });
       }

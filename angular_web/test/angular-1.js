@@ -17753,11 +17753,11 @@
                             watchLog = [],
                             logIdx, asyncTask;
 
-                        beginPhase('$digest');
+                        beginPhase('$digest'); //$rootScope.$$phase赋值，标记开始，如果其它方法调用$digest，则抛出错误。
                         // Check for changes to browser url that happened in sync before the call to $digest
                         $browser.$$checkUrlChange();
 
-                        if (this === $rootScope && applyAsyncId !== null) {
+                        if (this === $rootScope && applyAsyncId !== null) { //如果有$applyAsync的方法，则一并执行，并清空applyAsync数组。
                             // If this is the root scope, and $applyAsync has scheduled a deferred $apply(), then
                             // cancel the scheduled $apply and flush the queue of expressions to be evaluated.
                             $browser.defer.cancel(applyAsyncId);
@@ -17773,6 +17773,7 @@
                             // It's safe for asyncQueuePosition to be a local variable here because this loop can't
                             // be reentered recursively. Calling $digest from a function passed to $applyAsync would
                             // lead to a '$digest already in progress' error.
+                       //先执行$evalAsync队列。
                             for (var asyncQueuePosition = 0; asyncQueuePosition < asyncQueue.length; asyncQueuePosition++) {
                                 try {
                                     asyncTask = asyncQueue[asyncQueuePosition];
@@ -17784,26 +17785,28 @@
                             }
                             asyncQueue.length = 0;
 
+                            //开始watch循环
                             traverseScopesLoop:
                                 do { // "traverse the scopes" loop
                                     if ((watchers = current.$$watchers)) {
                                         // process our watches
                                         length = watchers.length;
-                                        while (length--) {
+                                        while (length--) { //循环执行watch函数。
                                             try {
                                                 watch = watchers[length];
                                                 // Most common watches are on primitives, in which case we can short
                                                 // circuit it with === operator, only when === fails do we use .equals
-                                                if (watch) {
+                                                if (watch) {//先用绝对等于，false再比较对象
                                                     get = watch.get;
+                                                    //当前值不等于上次值，且对象不相等或者不是NaN，则为脏值
                                                     if ((value = get(current)) !== (last = watch.last) && !(watch.eq
                                                             ? equals(value, last)
                                                             : (typeof value === 'number' && typeof last === 'number'
                                                         && isNaN(value) && isNaN(last)))) {
                                                         dirty = true;
                                                         lastDirtyWatch = watch;
-                                                        watch.last = watch.eq ? copy(value, null) : value;
-                                                        fn = watch.fn;
+                                                        watch.last = watch.eq ? copy(value, null) : value; //当前值为最新值
+                                                        fn = watch.fn;//调用listener函数
                                                         fn(value, ((last === initWatchVal) ? value : last), current);
                                                         if (ttl < 5) {
                                                             logIdx = 4 - ttl;
@@ -17827,7 +17830,7 @@
                                         }
                                     }
 
-                                    // Insanity Warning: scope depth-first traversal
+                                    // Insanity Warning: scope depth-first traversal    严重警告：scope深度优先遍历
                                     // yes, this code is a bit crazy, but it works and we have tests to prove it!
                                     // this piece should be kept in sync with the traversal in $broadcast
                                     if (!(next = ((current.$$watchersCount && current.$$childHead) ||
@@ -17840,7 +17843,7 @@
 
                             // `break traverseScopesLoop;` takes us to here
 
-                            if ((dirty || asyncQueue.length) && !(ttl--)) {
+                            if ((dirty || asyncQueue.length) && !(ttl--)) {//循环超过10次，还有脏值或者执行了$evalAsync方法，则抛出异常。
                                 clearPhase();
                                 throw $rootScopeMinErr('infdig',
                                     '{0} $digest() iterations reached. Aborting!\n' +
@@ -17848,10 +17851,10 @@
                                     TTL, watchLog);
                             }
 
-                        } while (dirty || asyncQueue.length);
+                        } while (dirty || asyncQueue.length);//有脏值或者$evalAsync队列有值，则一直循环。
 
                         clearPhase();
-
+//已经将$rootScope.$$phase=null;此时其它地方可以调用$digest循环，从而重新进入以下循环，因为不需要脏值检查。
                         // postDigestQueuePosition isn't local here because this loop can be reentered recursively.
                         while (postDigestQueuePosition < postDigestQueue.length) {
                             try {

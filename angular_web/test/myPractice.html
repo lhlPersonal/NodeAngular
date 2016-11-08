@@ -1,22 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" ng-app="myApp">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
 </head>
-<body ng-app="myApp" ng-controller="myCtrl">
-<div>
-    [parent]:<span ng-bind="attr.readValue"></span>,[parent]:{{bidirectionalBindValue}}，[parent]:{{onewayBindValue}}
-</div>
-<transclude-direc ng-bind="attr.readValue" bid="{{bidirectionalBindValue}}" oneway="{{onewayBindValue}}">
-    <span>{{title}}</span>
-    <div>
-        [children]: {{r}},[children]:{{bid}}，[children]:{{oneway}}
-    </div>
-    <span>tranclude directive test.</span>
-</transclude-direc>
-<div></div>
+<body ng-controller="myController">
+<msg-directive></msg-directive>
+<msg1-directive></msg1-directive>
+<input type="text" ng-model="msg">
+<span>{{msg1}}</span>
 </body>
 </html>
 <script src="../bower_components/angular/angular.js"></script>
-<script src="../test/my_practice.js"></script>
+<script src="../test/myAngular.js"></script>
