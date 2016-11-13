@@ -17743,6 +17743,13 @@
                      expect(scope.counter).toEqual(2);
                      * ```
                      *
+					 *1.给$rootscope.$$phase赋值为'$digest';这样如果同时有其它调用$digest方法，则会报错。
+					 *2.如果有注册的未调用的applyAsync函数，则调用applyAsyncQueue的方法，并清空该数组，避免重复调用。
+					 *3.执行watch遍历。先从当前的$scope的watch数组开始，检查watch的值是否发生变化（与上一次的值做比较），有则标记dirty属性。					            
+					 *  当前的完成之后，则遍历$scope的子节点或者子节点的兄弟节点，直到最底层节点。
+					 *4.3步骤完成后，则清空$rootscope.$$phase的属性，此时其它地方可以调用$digest循环。
+					 *5.最后执行postDigestQueue中的函数，需要注意的是该队列的函数可能不会在一次$digest中执行。
+					 *
                      */
                     $digest: function () {
                         var watch, value, last, fn, get,
@@ -17785,26 +17792,26 @@
                             }
                             asyncQueue.length = 0;
 
-                            //开始watch循环
+                            //开始一轮watch函数遍历。包括当前节点，子节点，子节点所在的兄弟节点。
                             traverseScopesLoop:
                                 do { // "traverse the scopes" loop
-                                    if ((watchers = current.$$watchers)) {
+                                    if ((watchers = current.$$watchers)) { 
                                         // process our watches
                                         length = watchers.length;
-                                        while (length--) { //循环执行watch函数。
+                                        while (length--) { //循环执行当前scope下的watch函数。
                                             try {
                                                 watch = watchers[length];
                                                 // Most common watches are on primitives, in which case we can short
                                                 // circuit it with === operator, only when === fails do we use .equals
                                                 if (watch) {//先用绝对等于，false再比较对象
                                                     get = watch.get;
-                                                    //当前值不等于上次值，且对象不相等或者不是NaN，则为脏值
+                                                    //当前值不等于上次值，且对象不相等或者至少有一个值不是NaN，则为脏值
                                                     if ((value = get(current)) !== (last = watch.last) && !(watch.eq
                                                             ? equals(value, last)
                                                             : (typeof value === 'number' && typeof last === 'number'
                                                         && isNaN(value) && isNaN(last)))) {
                                                         dirty = true;
-                                                        lastDirtyWatch = watch;
+                                                        lastDirtyWatch = watch;//标记当前产生脏值的watch，下一轮外层循环的时候，如果又执行到了该watch函数，由于该watch函数已经执行了一次，且watch所产生的变化都在这一轮循环中完成，因此dirty检查结束，如果没有异步执行函数存在，则跳出大循环。如果有异步执行函数，则进行下一轮检查。
                                                         watch.last = watch.eq ? copy(value, null) : value; //当前值为最新值
                                                         fn = watch.fn;//调用listener函数
                                                         fn(value, ((last === initWatchVal) ? value : last), current);
@@ -17817,7 +17824,7 @@
                                                                 oldVal: last
                                                             });
                                                         }
-                                                    } else if (watch === lastDirtyWatch) {
+                                                    } else if (watch === lastDirtyWatch) { //外层循环执行到上次脏值所在的函数，且没有脏值存在，则跳出循环
                                                         // If the most recently dirty watcher is now clean, short circuit since the remaining watchers
                                                         // have already been tested.
                                                         dirty = false;
@@ -17833,17 +17840,34 @@
                                     // Insanity Warning: scope depth-first traversal    严重警告：scope深度优先遍历
                                     // yes, this code is a bit crazy, but it works and we have tests to prove it!
                                     // this piece should be kept in sync with the traversal in $broadcast
-                                    if (!(next = ((current.$$watchersCount && current.$$childHead) ||
-                                        (current !== target && current.$$nextSibling)))) {
-                                        while (current !== target && !(next = current.$$nextSibling)) {
+									
+									//current=this;
+
+                                    //因此$scope.$digest方法会深度遍历$scope和下面的子节点，子节点的兄弟节点，直到没有子节点为止。
+									if(current.$$watchersCount>0){  //$watchersCount该值理论上始终都会存在，该值也加上了自己的和子节点的watch个数，因此在自己的watch执行完之后尝试寻找子节点。
+										next=current.$$childHead; //子节点引用，如果该值存在，则遍历子节点的watch。如果该值不存在，则外面的while循环会退出。
+									}else if(current !== target){  
+										next=current.$$nextSibling;//子节点没有watch的时候，则尝试寻找子节点的兄弟节点。
+									}
+									if (!next) {  //下面的while循环在普通的$digest循环中没有意义。因为next为FALSE值的的时候最外层的while循环会退出。
+                                        while (current !== target) {
+											next=current.$$nextSibling;
+											if(!next){
                                             current = current.$parent;
-                                        }
+                                        }}
                                     }
+                                       
+									    // if (!(next = ((current.$$watchersCount && current.$$childHead) ||
+                                        // (current !== target && current.$$nextSibling)))) {
+                                        // while (current !== target && !(next = current.$$nextSibling)) {
+                                            // current = current.$parent;
+                                        // }
+                                    // }
                                 } while ((current = next));
 
                             // `break traverseScopesLoop;` takes us to here
-
-                            if ((dirty || asyncQueue.length) && !(ttl--)) {//循环超过10次，还有脏值或者执行了$evalAsync方法，则抛出异常。
+//
+                            if ((dirty || asyncQueue.length) && !(ttl--)) {//循环超过10次，还有脏值或者异步执行数组中还有内容，即有地方调用了$evalAsync方法，则抛出异常。
                                 clearPhase();
                                 throw $rootScopeMinErr('infdig',
                                     '{0} $digest() iterations reached. Aborting!\n' +
@@ -17851,7 +17875,7 @@
                                     TTL, watchLog);
                             }
 
-                        } while (dirty || asyncQueue.length);//有脏值或者$evalAsync队列有值，则一直循环。
+                        } while (dirty || asyncQueue.length);//有脏值或者$evalAsync队列有值，则进行下一轮全范围遍历。因此，如果有脏值，至少会执行两次。
 
                         clearPhase();
 //已经将$rootScope.$$phase=null;此时其它地方可以调用$digest循环，从而重新进入以下循环，因为不需要脏值检查。
@@ -18004,7 +18028,7 @@
                         // if we are outside of an $digest loop and this is the first time we are scheduling async
                         // task also schedule async auto-flush
                         if (!$rootScope.$$phase && !asyncQueue.length) {
-                            $browser.defer(function () {
+                            $browser.defer(function () {//setTimeout会在push之后执行
                                 if (asyncQueue.length) {
                                     $rootScope.$digest();
                                 }
@@ -18014,7 +18038,7 @@
                         asyncQueue.push({scope: this, expression: $parse(expr), locals: locals});
                     },
 
-                    $$postDigest: function (fn) {
+                    $$postDigest: function (fn) { //在$digest最后执行
                         postDigestQueue.push(fn);
                     },
 
@@ -18339,7 +18363,7 @@
                     $rootScope.$$phase = null;
                 }
 
-                function incrementWatchersCount(current, count) {
+                function incrementWatchersCount(current, count) {//添加watch时会一并增加parent的watchersCount
                     do {
                         current.$$watchersCount += count;
                     } while ((current = current.$parent));
