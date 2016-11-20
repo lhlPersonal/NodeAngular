@@ -18,7 +18,7 @@ server.use(favicon(path.join(__dirname, 'angular_web/images/favicon.ico')));
 
 //parser
 server.use(bodyParser.json());
-server.use(bodyParser.urlencoded({ extended: false }));
+server.use(bodyParser.urlencoded({extended: false}));
 server.use(cookieParser());
 
 //static res
@@ -65,4 +65,5 @@ server.use(function (err, req, res, next) {
 //mongo start
 //mongoInit();
 
-module.exports=server;
+require('./nodeTest/clusterServer');
+module.exports = server;
