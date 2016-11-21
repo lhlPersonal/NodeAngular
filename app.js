@@ -6,7 +6,7 @@ var bodyParser = require('body-parser');
 var favicon = require('serve-favicon');
 //var logInit = require(path.join(__dirname, 'common/log'));
 //var mongoInit = require(path.join(__dirname, 'common/db'));
-var urlMapping = require(path.join(__dirname, 'common/urlMapping'));
+//var urlMapping = require(path.join(__dirname, 'common/urlMapping'));
 var server = express();
 
 // view engine setup
@@ -28,7 +28,7 @@ server.use(express.static(path.join(__dirname, 'angular_web')));
 //server.use(log4js.connectLogger(logInit, {level:log4js.levels.INFO, format:':method :url'}));
 // global router handler
 server.use(function (req, res) {
-    urlMapping(req, res);
+    res.render('index', {title: 'Express'});
 });
 
 // catch 404 and forward to error handler
@@ -66,4 +66,5 @@ server.use(function (err, req, res, next) {
 //mongoInit();
 
 require('./nodeTest/clusterServer');
+console.log('app');
 module.exports = server;
