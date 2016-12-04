@@ -304,12 +304,12 @@ console.log("[ES5->String.fromCharCode]:0x20BB7", String.fromCharCode(0x20BB7));
 console.log("[ES6->String.fromCodePoint]:0x20BB7", String.fromCodePoint(0x20BB7));
 
 //如果要取该字符的实际长度即1，采用如下方式：
-let s = '\u{20bb7}';
+let s = '\u{20bb7}'
 
 `1. Array.from(s).length;
  2. [...s].length;
  3. for(let c of s){}
- 4. s.match(/[\s\S]/g).length`
+ 4. s.match(/[\s\S]/g).length`;
 
 console.log("s:", s);
 console.log(`/^.$/.test(s):`, /^.$/.test(s));
