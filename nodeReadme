@@ -1,0 +1,70 @@
+npm version
+npm pack //打包package.json中的模块为tgz
+console.time
+console.timeEnd
+非阻塞I/O（多线程，回调），事件通知，事件循环
+
+#######下一轮事件循环时，回调执行的顺序
+process.nextTick:总是最先执行，最大深度：process.MaxTickDept:1000
+setImmediate:在nextTick后面执行，在I/O之前执行
+I/O回调：在前两者执行完之后执行
+
+#######Buffer
+低端字节序和高端字节序
+
+
+######Stream(pipe)
+Stream 对象都是 EventEmitter 的实例，具有data,end,finish,error等方法。
+data - 当有数据可读时触发。
+end - 没有更多的数据可读时触发。
+error - 在接收和写入过程中发生错误时触发。
+finish - 所有数据已被写入到底层系统时触发。
+
+Readable：实现_read方法。fs.createReadStream
+Writable: 实现_write方法。fs.createWriteStream
+Duplex:需要实现_read和_write两个方法
+Transform:用来修改数据，实现_transform和_flush方法。
+
+pipe:readerStream.pipe(writerStream);
+many pipe:fs.createReadStream('input.txt').pipe(zlib.createGzip()).pipe(fs.createWriteStream('input.txt.gz'));
+
+#######fs
+method/methodSync
+简单：readFile/readFileSync
+同步/异步：readSync/read
+大数据读：createReadStream
+
+写同
+写或者读大数据需要使用 相应的流
+
+
+########自己实现http服务器
+
+
+#######套接字（socket）编程。（net.socket和net.server）
+套接字（TCP协议，Duplex双通道，点对点传输原始数据）：IP和端口的组合，用来在不同进程间传输数据或者访问其它机器上的服务。
+Server：监听端口，Client：建立套接字连接，发送数据。
+多进程之间的数据访问：可以使用同一套接字，
+
+
+
+########子进程
+process
+  process.on('data/......')  //监听进程信号
+  process.stdin.on('data',fn) //监听控制台输入
+  process.xxxx  提供获取当前进程或者机器的一系列方法
+
+child_process
+cluster
+
+
+
+
+
+#########其它类
+os()
+util()
+dns()
+util.inherits()
+
+

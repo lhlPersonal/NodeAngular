@@ -67,18 +67,18 @@ t[Symbol.iterator] = function () {  //自定义next方法，实现iterator
 }
 
 
-for (let i of t) {
-    console.log(i);
-}
+// for (let i of t) {
+//     console.log(i);
+// }
 
-console.log([...t]);
+// console.log([...t]);
 
-console.log(Array.from(t));
+// console.log(Array.from(t));
 
 let arr = [];
-for (let i = 0; i < 10000 * 10000; i++) {
-    arr[i] = (i + 1);
-}
+// for (let i = 0; i < 10000 * 10000; i++) {
+//     arr[i] = (i + 1);
+// }
 
 function tailCallOptimize(arr, total) {
     if (arr.length > 0) {
@@ -89,38 +89,138 @@ function tailCallOptimize(arr, total) {
     }
 }
 
-tailCallOptimize(arr, 0);
+//tailCallOptimize(arr, 0);
 
 
-function a(arg1, arg2, arg3, arg4, callback) {
+function co1(geFn) {
+    let ctx = geFn();
+    let next = ctx.next();
+    let value = next.value;
+    if (next.done) {
+        return Promise.resolve(value);
+    } else {
 
+    }
+
+    function doGe(fn) {
+        if (typeof fn === 'object' && typeof fn.then === 'function') {
+            doPromise(fn);
+        } else if (typeof fn === 'function') {
+            fn(callback);
+        }
+    }
+
+    function callback(err, data) {
+        let value = ctx.next(data);
+        if (value.done) {
+            doGe(value);
+        } else {
+            doGe(value);
+        }
+    }
+
+    function doPromise(promise) {
+        promise.then(result=> {
+            let next = ctx.next(result);
+            let value = next.value;
+            if (next.done) {
+                Promise.resolve(value);
+            } else {
+                doGe(value);
+            }
+        });
+    }
 }
 
-var ff = Thunk(a);
-ff(1, 2, 3, 4)(function () {
-});
-
+/**
+ * Thunk函数表示传函数代替传值，在JavaScript中，Thunk意指只有一个callback参数的函数。凡是最后一个参数为callback的函数，都可以转换为Thunk函数的形式。
+ * @param fn
+ * @returns {Function}
+ * @constructor
+ */
 function Thunk(fn) {
     return function (...arg) {
+
         return function (callback) {
-            let args = arg.push(callback);
-            return fn.call(this, args);
+            var called = false;
+            arg.push(function () {
+                if (called) {
+                    return;
+                }
+                called = true;
+                callback.apply(this, arguments);
+            });
+            return fn.apply(null, arg);
         }
     }
 }
 
-
-
-function *call() {
-    let v1 = yield new Promise((resolve, reject)=> {
-        setTimeout(()=> {
-            resolve('aaaaa');
-        }, 100);
-    });
-
+function zz(arg1, arg2, callback) {
+    console.log(arg1, arg2);
+    setTimeout(()=> {
+        callback('', 'thunk test');
+    }, 200);
 }
 
+// let thunkZZ = Thunk(zz);
+// thunkZZ('arg1', 'arg2')((para)=> {
+//     console.log(para);
+// });
+
+function *ge() {
+    let r = yield  new Promise((resolve, reject)=> {
+        setTimeout(()=> {
+            resolve('aaa');
+        }, 100);
+    });
+    console.log(r);
+
+    let r2 = yield new Promise((resolve)=> {
+        setTimeout(()=> {
+            resolve('bbb');
+        }, 100);
+    });
+    console.log(r2);
+
+    let r3 = yield  Thunk(zz)('arg1', 'arg2')((para)=> {
+        console.log(para);
+    });
+    console.log(r3);
+    return 'ccc';
+}
+
+//let geee = ge();  //调用generator函数，返回指向遍历器对象的指针，该遍历器对象含有next函数，调用该函数返回{value;'',done:''}对象。
+//console.log('geee:', geee[Symbol.iterator]() === geee);
 
 
+// co(ge).then(result=> {
+//     console.log(result);
+// });
 
+let co = require('co');
 
+co(function *() {
+    return new Promise((resolve)=> {
+        setTimeout(()=> {
+            resolve(new Promise((resolve)=> {  //resolve参数为Promise对象时，后面的then函数会等到该promise执行完成再执行。
+                setTimeout(()=> {
+                    resolve('ffffffff');
+                }, 2000);
+            }));
+        }, 3000);
+    }).then((rr)=> {
+        console.log(rr);
+    })
+}).then(result=> {
+        console.log('co', result);
+    }
+);
+
+co(function *() {
+    return Thunk(zz)('arg1', 'arg2')((err, data)=> {  //thunk放在generator的return语句中时，
+        console.log(data);
+    });
+}).then(result=> {
+        console.log('co', result);
+    }
+);

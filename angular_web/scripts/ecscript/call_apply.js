@@ -8,30 +8,68 @@ var x = 1;
  *
  *函数调用call/apply
  *
- *1. 如果call/apply的第一个参数可以被this所调用，如this.xxx，则该参数的this会应用到调用函数的this里（如果调用函数里面有this引用）。
- *  eg：   (function(){return this.z;}).apply({z:3});
+ *1. 如果call/apply的第一个参数具有this属性（除了null和undefined之外都是，如果是字符串，bool值，数字等基本类型，会转换成对象类型），则该参数的this(self)会替换调用函数的this（如果调用函数里面有this引用）。
+ *   eg：   (function(){return this.z;}).apply({z:3});
  *  result:3;
  *
- *2. 反之，该参数整体会作为调用函数的this。
- *   eg:     (function(){return this;}).apply(function(){this.a=1;return {z:3}});
+ *   eg:    (function(){return this;}).apply(function(){this.a=1;return {z:3}});
  *   result: function(){this.a=1;return {z:3}};
  *
  *   eg:     var t = (function () {
  *           var z = Math.pow(2, this);
  *           console.log(z);  //1024
- *           return this;     //this为call里函数的返回结果10。
- *           }).call(function a() {
- *           return 10;}());
+ *           return this;   //this为10.
+ *           }).call(10);//call/apply中的参数不为undefined或者null，则该参数始终会替换调用函数的this。
  *
  * *   result: 1024
  *
  *
- *3. 如果调用函数里面没有this，则call/apply不会被执行，相当于直接执行调用函数。
+ *3. 如果调用函数里面没有显式的this调用，则相当于直接执行调用函数。
  *  eg:    (function(){return {f:5};}).apply(function(){this.a=1;return {z:3}});
  *  result:{f: 5};
- *
  */
 
+(function(){console.log('ttt');}).apply(function(){this.a=1;this.b=2;return 'apply para'});  //调用函数不包含this，相当于直接调用。
+//ttt,undefined
+
+(function(){return this;}).apply(function(){this.a=1;this.b=2;return 'apply para'});  //调用函数返回this，此时this为apply的参数function。
+//function(){this.a=1;this.b=2;return 'apply para'}
+
+(function(){return new this;}).apply(function(){this.a=1;this.b=2;return 'apply para'}); //new 参数，返回对象，因为参数函数返回的是基本类型，new操作符依然起作用。
+//Object {a: 1, b: 2}
+
+(function(){return new this;}).apply(function(){this.a=1;this.b=2;return {zzz:3}});//此时new操作符和下面的调用this一样，相当于直接调用参数函数，因为参数函数返回的是对象
+//Object {zzz: 3}
+
+(function(){return this();}).apply(function(){this.a=1;this.b=2;return {zzz:3}});//同上一个函数
+//Object {zzz: 3}
+
+(function(){return this;}).apply('apply para');//此时this为apply中字符串对象
+//String {0: "a", 1: "p", 2: "p", 3: "l", 4: "y", 5: " ", 6: "p", 7: "a", 8: "r", 9: "a", length: 10, [[PrimitiveValue]]: "apply para"}
+
+(function(){return this;}).apply(new String('ffff'));//this为apply中的string对象。
+//String {0: "f", 1: "f", 2: "f", 3: "f", length: 4, [[PrimitiveValue]]: "ffff"}0: "f"1: "f"2: "f"3: "f"length: 4__proto__: String[[PrimitiveValue]]: "ffff"
+
+(function(){return this;}).apply(0); //this为apply中的数字对象
+//Number {[[PrimitiveValue]]: 0}__proto__: Number[[PrimitiveValue]]: 0
+
+(function(){return this;}).apply(true);//this为apply中的bool对象
+//Boolean {[[PrimitiveValue]]: true}
+
+(function(){return this;}).apply(/^2/); //this为apply中的正则对象
+//:/^2/
+
+(function(){return this;}).apply(NaN); //this为数字对象，因为NaN也为数字类型
+//Number {[[PrimitiveValue]]: NaN}
+
+(function(){return this;}).apply(null);//此时相当于直接调用，this指向全局对象
+//Window
+
+(function(){return this;}).apply(undefined);//同null
+//Window
+
+(function(){return this;}).apply([]);//this为apply中的数组对象
+//[]
 
 /**
  *
@@ -53,7 +91,7 @@ var x = 1;
  *    eg:    var f=Function.prototype.bind.apply(function(){return {a:1}})
  *    result:
  *           f=function(){return {a:1}};
- *           f()=new f()={a: 1};   //函数返回对象的时候，new和直接调用产生的结果一样
+ *           f()=new f()={a: 1};   //函数返回对象或者实例的时候，new和直接调用都会返回该对象或者实例。如果函数返回的是基本类型，如字符串，bool值，数字等等，则new还是会应用在this上，返回值不会被使用。
  *
  * 3. apply.bind。
  *    eg:    var zz=Function.prototype.apply.bind(function(){return this;},function(){return 10;});
@@ -64,27 +102,11 @@ var x = 1;
  *    eg:    var zz=Function.prototype.apply.bind(function(){return this.a;},{ a:10});
  *    result:zz=function apply(){[native code]};//相当于function(){(function(){return this.a;}).apply({a:10});};
  *             zz()=10;
- *
- *
  */
-
-var newArr = (function a(n, arr = []) {
-    if (n > 0) {
-        //  arr.push(n--);
-        [].push.call(arr, n--);
-        return a(n, arr);
-    } else {
-        return arr.reverse();
-    }
-})(5);
-
-console.log(newArr);
 
 
 /**
  *
-
-
  new操作符可以用来产生一个对象的实例。并将该实例作为函数上下文中的this对象来引用。 
  new的过程 
  语法上，以上的效果是一致的。 var obj =newConstructor; var obj =newConstructor(); 
@@ -135,6 +157,8 @@ TestObj.prototype.func1 = function () {
 let obj = new TestObj;
 console.log(obj);
 obj.func1();
+
+
 
 let s = new String("test");
 let s1 = String("test");//s.valueOf();
