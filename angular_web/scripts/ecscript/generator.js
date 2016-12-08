@@ -92,56 +92,34 @@ function tailCallOptimize(arr, total) {
 tailCallOptimize(arr, 0);
 
 
+function a(arg1, arg2, arg3, arg4, callback) {
+
+}
+
+var ff = Thunk(a);
+ff(1, 2, 3, 4)(function () {
+});
+
+function Thunk(fn) {
+    return function (...arg) {
+        return function (callback) {
+            let args = arg.push(callback);
+            return fn.call(this, args);
+        }
+    }
+}
 
 
 
+function *call() {
+    let v1 = yield new Promise((resolve, reject)=> {
+        setTimeout(()=> {
+            resolve('aaaaa');
+        }, 100);
+    });
 
-//const co = require('co');
+}
 
-
-//generator方式，感觉不好
-//function *gen_analysisSysInfo(uuid, discSysInfo) {
-//    let promise1 = yield new Promise((resolve, reject)=> {
-//        abstractDevice.getAnalyseResult(discSysInfo.commands, (err, sysInfo)=> {
-//            if (err) {
-//                reject(err);
-//            } else {
-//                resolve(sysInfo);
-//            }
-//        });
-//    });
-//    let promise2 = yield new Promise((resolve, reject)=> {
-//        networkDao.findByUUID(uuid, (err, network)=> {
-//            if (err) {
-//                reject(err);
-//            } else {
-//                resolve({network, sysInfo: promise1});
-//            }
-//        });
-//    });
-//
-//    let baseDev = _getDeviceSysInfo(uuid, promise2.sysInfo);
-//    if (baseDev) {
-//        baseDev.ip = discSysInfo.device.IPv4; //解析时直接得到IP;
-//        baseDev.status = devStatus.online;
-//        baseDev.orgId = promise2.network.orgId;
-//        baseDev.networkId = promise2.network._id;
-//        baseDev.lastDiscoverdTime = new Date();//每次都需要赋值}
-//    }
-//
-//    yield new Promise((resolve, reject)=> {//更新或者插入
-//        devDiscDAO.saveDiscoveredDevice({
-//            soid: baseDev.soid,
-//            networkId: baseDev.networkId
-//        }, baseDev, (err, newDev)=> {
-//            if (err) {
-//                reject(err);
-//            } else { //第一次需要记录discoveredTime。以后则不需要
-//                (newDev && !newDev.discoveredTime) && (newDev.discoveredTime = newDev.lastDiscoverdTime, newDev.save());
-//            }
-//        });
-//    })
-//}
 
 
 

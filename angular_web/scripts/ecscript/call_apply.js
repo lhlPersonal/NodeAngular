@@ -37,13 +37,13 @@ var x = 1;
  *
  * bind的不同应用
  *
- * 1. bind普通方法。
+ * 1. 普通方法的bind。
  *    eg:    var ff=[1,2,3];var zz=[].push.bind(ff,5,6,7);
  *    result:zz=function push(){[native code]};
  *            zz()=6;//调用push:5,6,7之后数组的长度。
  *            ff=[1,2,3,5,6,7]  //改变后的数组。
  *
- * 2. bind.apply。
+ * 2. bind.apply。 自身bind，需要利用apply或者call。a
  *
  *    bind.apply中的参数会从{b:2}开始传入para形参中。{a:10}会被截取。
  *    eg:    var zz=Function.prototype.bind.apply(function(para){return para.a;},{ a:10},{b:2});

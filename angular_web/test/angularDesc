@@ -551,9 +551,13 @@ scope:true/false/
           '@': bind a local scope property to the value of DOM attribute. The result is always a string。
           '?=':set up a bidirectional binding between a local scope property and an expression passed via the attribute `attr`.
           '?<':one-way binding,Any changes to `parentModel` will be reflected in `localModel`, but changes in `localModel` will not reflect in `parentModel`.
-           1. one-way binding does not copy the value from the parent to the isolate scope, it simply sets the same value. That means if your bound value is an object, changes to its properties
+           1. one-way binding [does not copy the value] from the parent to the isolate scope, it simply [sets the same value]. That means if your bound value is an object, changes to its properties
        in the isolated scope will be reflected in the parent scope (because both reference the same object).
-       2. one-way binding watches changes to the **identity** of the parent value. That means the $watch on the parent value only fires if the reference to the value has changed.
-
+           2. one-way binding watches changes to the **identity** of the parent value. That means the $watch on the parent value only fires if the reference to the value has changed.
+          '&': provides a way to execute an expression in the context of the parent scope. scope: {localFn:'&myAttr' }`,
+               the isolate scope property `localFn` will point to a function wrapper for the `count = count + value` expression. Often it's desirable to pass data from the isolated scope
+               via an expression to the parent scope. This can be done by passing a map of local variable names
+               and values into the expression wrapper fn. For example, if the expression is `increment(amount)`
+               then we can specify the amount value by calling the `localFn` as `localFn({amount: 22})`.
 
 }
