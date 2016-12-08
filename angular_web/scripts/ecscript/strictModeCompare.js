@@ -89,8 +89,8 @@ Object.defineProperty(o, 'readOnlyProp', {
     /**
      * 10 .eval和arguments不能被赋值
      */
-    eval = null;
-    arguments = [2];
+ //   eval = null;
+  //  arguments = [2];
 
 
     /**

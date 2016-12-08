@@ -186,13 +186,13 @@ console.log((new Function).name);
 
 //var regexp = /\u{20BB7}/u;
 
-{ //支持局部函数定义
-    function z({x,y=5}) {
-        //  alert("x:" + x + "  y:" + y);
-    }
-
-    z({x: 1});
-}
+// { //支持局部函数定义
+//     function z({x,y=5}) {
+//         //  alert("x:" + x + "  y:" + y);
+//     }
+//
+//     z({x: 1});
+// }
 //z({y:1});不能再外部调用
 
 console.log("############解析赋值 test##############")
@@ -210,20 +210,20 @@ console.log("f1", f1());
 console.log("x:", x, "y:", y);
 console.log("x1:", x1);
 
-{
-    function formatOutput(x = 10, y = x) {
-        let [p1={x: 1, y: 2}]=[x, y];
-        console.log("p1", p1);
-    }
-
-    function test1({x=20, y=x}={}) {
-        let [p2={x: 1, y: 2}]=[x, y];
-        console.log("p2", p2);
-    }
-
-    formatOutput();
-    test1();
-}
+// {
+//     function formatOutput(x = 10, y = x) {
+//         let [p1={x: 1, y: 2}]=[x, y];
+//         console.log("p1", p1);
+//     }
+//
+//     function test1({x=20, y=x}={}) {
+//         let [p2={x: 1, y: 2}]=[x, y];
+//         console.log("p2", p2);
+//     }
+//
+//     formatOutput();
+//     test1();
+// }
 
 console.log("####################增强字符串########################")
 //\x表示8位字符，\u为16进制字符，utf-16：单字符16位，汉字32位
